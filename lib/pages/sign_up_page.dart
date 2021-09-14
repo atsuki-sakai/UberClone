@@ -2,20 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:uber_clone/componets/default_button.dart';
 import 'package:uber_clone/componets/round_text_field.dart';
 import 'package:uber_clone/componets/shadow_text.dart';
-import 'login_page.dart';
 
 class SignUpPage extends StatelessWidget {
-  const SignUpPage({Key? key}) : super(key: key);
+  SignUpPage({Key? key}) : super(key: key);
+
+  final FocusNode emailFocusNode = FocusNode();
+  final FocusNode phoneNumberFocusNode = FocusNode();
+  final FocusNode passwordFocusNode = FocusNode();
+
+  String userName = '';
+  String email = '';
+  String phoneNumber = '';
+  String password = '';
+
+  void changeUserName(_userName) {
+    userName = _userName;
+  }
+
+  void changeEmail(_email) {
+    email = _email;
+  }
+
+  void changePhoneNumber(_phoneNumber) {
+    phoneNumber = _phoneNumber;
+  }
+
+  void changePassword(_pass) {
+    password = _pass;
+  }
 
   void _signUp() {
     //TODO - make SignUp Function
-    print('SignUp');
+    print('SignUp => userName: ${userName}, email : ${email} , phoneNumber : ${phoneNumber}, pass: ${password}');
   }
 
-  void _pushLoginPage(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return LoginPage();
-    }));
+  void _popLoginPage(BuildContext context) {
+    Navigator.pop(context);
   }
 
   @override
@@ -51,26 +73,54 @@ class SignUpPage extends StatelessWidget {
         SizedBox(
           height: 80.0,
         ),
-        RoundTextField(hintText: 'Yamada Tarou', labelText: 'UserName'),
+        RoundTextField(
+          hintText: 'Yamada Tarou',
+          labelText: 'UserName',
+          nextFocus: emailFocusNode,
+          onChanged: (_userName) => changeUserName(_userName),
+        ),
         SizedBox(
           height: 20.0,
         ),
-        RoundTextField(hintText: 'sample@email.com', labelText: 'Email'),
+        RoundTextField(
+          hintText: 'sample@email.com',
+          labelText: 'Email',
+          focusNode: emailFocusNode,
+          nextFocus: phoneNumberFocusNode,
+          onChanged: (_email) => changeEmail(_email),
+        ),
         SizedBox(
           height: 20.0,
         ),
-        RoundTextField(hintText: '090 1234 5678', labelText: 'PhoneNumber'),
+        RoundTextField(
+          keyBoardType: TextInputType.numberWithOptions(signed: true),
+          hintText: '090 1234 5678',
+          labelText: 'PhoneNumber',
+          focusNode: phoneNumberFocusNode,
+          nextFocus: passwordFocusNode,
+          onChanged: (_phoneNumber) => changePhoneNumber(_phoneNumber),
+        ),
         SizedBox(
           height: 20.0,
         ),
-        RoundTextField(hintText: 'password', labelText: 'Password'),
+        RoundTextField(
+          obscureText: true,
+          hintText: 'password',
+          labelText: 'Password',
+          focusNode: passwordFocusNode,
+          onChanged: (_pass) => changePassword(_pass),
+        ),
         SizedBox(
           height: 80.0,
         ),
-        DefaultButton(title: 'Sign Up', onPressed: _signUp),
+        DefaultButton(
+          title: 'Sign Up',
+          color: Colors.indigoAccent,
+          onPressed: _signUp,
+        ),
         SizedBox(height: 50.0),
         TextButton(
-          onPressed: () => _pushLoginPage(context),
+          onPressed: () => _popLoginPage(context),
           child: Text("既にアカウントをお持ちですか？"),
         ),
         SizedBox(height: 100.0)

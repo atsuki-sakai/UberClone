@@ -7,18 +7,22 @@ import 'package:uber_clone/componets/status_bar_Style.dart';
 import 'package:uber_clone/pages/sign_up_page.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  LoginPage({Key? key}) : super(key: key);
 
   void _login() {
     //TODO - Login Function
-    print('login');
+    print('Login => email: ${email} , pass: ${password}');
   }
+
   void _pushSignInPage(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return SignUpPage();
     }));
   }
 
+  final passwordFocusNode = FocusNode();
+  String email = '';
+  String password = '';
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +56,24 @@ class LoginPage extends StatelessWidget {
           ],
         ),
         SizedBox(height: 80.0),
-        RoundTextField(hintText: 'email@sample.com', labelText: 'Email'),
+        RoundTextField(
+          hintText: 'email@sample.com',
+          labelText: 'Email',
+          nextFocus: passwordFocusNode,
+          onChanged: (_email) {
+            this.email = _email;
+          },
+        ),
         SizedBox(height: 20.0),
-        RoundTextField(hintText: 'password', labelText: 'Password'),
+        RoundTextField(
+          hintText: 'password',
+          labelText: 'Password',
+          keyBoardType: TextInputType.visiblePassword,
+          focusNode: passwordFocusNode,
+          onChanged: (_password) {
+            this.password = _password;
+          },
+        ),
         SizedBox(height: 80.0),
         DefaultButton(
           title: 'Login',
@@ -62,7 +81,10 @@ class LoginPage extends StatelessWidget {
           onPressed: _login,
         ),
         SizedBox(height: 50.0),
-        TextButton(onPressed: () => _pushSignInPage(context), child: Text("まだアカウントをお持ちでないですか？"),),
+        TextButton(
+          onPressed: () => _pushSignInPage(context),
+          child: Text("まだアカウントをお持ちでないですか？"),
+        ),
         SizedBox(height: 100.0),
       ],
     );

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>874039948211-4o7ik73enmegfvgr02dm3i5lm7t142v9.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.874039948211-4o7ik73enmegfvgr02dm3i5lm7t142v9</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBq2qQPSgq-wHyKb6SIGjuj_KJtpPeVuWg</string>
+	<key>GCM_SENDER_ID</key>
+	<string>874039948211</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.uberClone</string>
+	<key>PROJECT_ID</key>
+	<string>uberclone-2dfe1</string>
+	<key>STORAGE_BUCKET</key>
+	<string>uberclone-2dfe1.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:874039948211:ios:c0afb4c790459b8ee391c6</string>
+</dict>
+</plist>

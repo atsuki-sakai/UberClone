@@ -8,7 +8,13 @@ class RoundTextField extends StatefulWidget {
     this.obscureText,
     this.height,
     this.bgColor,
+    this.keyBoardType,
     this.textStyle,
+    this.autoFocus,
+    this.focusNode,
+    this.nextFocus,
+    this.onEditingComplete,
+    this.onChanged,
   }) : super(key: key);
 
   final String hintText;
@@ -16,13 +22,19 @@ class RoundTextField extends StatefulWidget {
   final bool? obscureText;
   final double? height;
   final Color? bgColor;
+  final TextInputType? keyBoardType;
   final TextStyle? textStyle;
-
+  final bool? autoFocus;
+  final FocusNode? focusNode;
+  final FocusNode? nextFocus;
+  final Function? onEditingComplete;
+  final Function? onChanged;
   @override
   _RoundTextFieldState createState() => _RoundTextFieldState();
 }
 
 class _RoundTextFieldState extends State<RoundTextField> {
+
   @override
   Widget build(BuildContext context) {
     const _defaultHeight = 60.0;
@@ -41,8 +53,27 @@ class _RoundTextFieldState extends State<RoundTextField> {
         ),
       ),
       child: TextFormField(
+        textInputAction: widget.nextFocus != null ? TextInputAction.next : TextInputAction.done,
+        autofocus: widget.autoFocus ?? false,
+        focusNode: widget.focusNode,
+        onChanged: (value) {
+          if(widget.onChanged != null){
+            widget.onChanged!(value);
+          }
+        },
+        onEditingComplete: (){
+          if(widget.nextFocus != null){
+            FocusScope.of(context).requestFocus(widget.nextFocus);
+          }else{
+            FocusScope.of(context).unfocus();
+          }
+          // REVIEW - 呼び出し位置は最後で良いか？
+          if(widget.onEditingComplete != null) {
+            widget.onEditingComplete!();
+          }
+        },
         obscureText: widget.obscureText ?? false,
-        keyboardType: TextInputType.emailAddress,
+        keyboardType: widget.keyBoardType ?? TextInputType.emailAddress,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.only(
             left: 20.0,
