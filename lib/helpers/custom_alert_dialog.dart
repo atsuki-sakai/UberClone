@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-void showAlertDialog({required BuildContext context,required Widget title, required Widget content, required Function doneAction}) {
+// TODO - doneActionはrequireしない
+void showAlertDialog({required BuildContext context,required Widget title, required Widget content,required Function doneAction}) {
   if (!Platform.isIOS) {
     showDialog(context: context, builder: (context) {
       return AlertDialog(

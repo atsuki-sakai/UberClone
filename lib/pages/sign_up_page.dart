@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uber_clone/componets/default_button.dart';
 import 'package:uber_clone/componets/round_text_field.dart';
 import 'package:uber_clone/componets/shadow_text.dart';
+import 'package:uber_clone/helpers/custom_alert_dialog.dart';
 
 class SignUpPage extends StatelessWidget {
   SignUpPage({Key? key}) : super(key: key);
@@ -33,11 +34,54 @@ class SignUpPage extends StatelessWidget {
 
   void _signUp() {
     //TODO - make SignUp Function
-    print('SignUp => userName: ${userName}, email : ${email} , phoneNumber : ${phoneNumber}, pass: ${password}');
+    print(
+        'SignUp => userName: ${userName}, email : ${email} , phoneNumber : ${phoneNumber}, pass: ${password}');
   }
 
   void _popLoginPage(BuildContext context) {
     Navigator.pop(context);
+  }
+
+  void _showVerificationAlert(BuildContext context) {
+    showAlertDialog(
+        context: context,
+        title: Text('アカウント情報の確認'),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 12.0,
+            horizontal: 20.0,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'UserName: '),
+                    TextSpan(text: userName, style: TextStyle(fontWeight: FontWeight.bold,),),
+                  ],
+                ),
+              ),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'Email: '),
+                    TextSpan(text: email, style: TextStyle(fontWeight: FontWeight.bold,),),
+                  ],
+                ),
+              ),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'phone: '),
+                    TextSpan(text: phoneNumber, style: TextStyle(fontWeight: FontWeight.bold,),),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        doneAction: () => {print('done')});
   }
 
   @override
@@ -116,7 +160,7 @@ class SignUpPage extends StatelessWidget {
         DefaultButton(
           title: 'Sign Up',
           color: Colors.indigoAccent,
-          onPressed: _signUp,
+          onPressed: () => _showVerificationAlert(context),
         ),
         SizedBox(height: 50.0),
         TextButton(

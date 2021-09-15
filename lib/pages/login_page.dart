@@ -66,9 +66,9 @@ class LoginPage extends StatelessWidget {
         ),
         SizedBox(height: 20.0),
         RoundTextField(
+          obscureText: true,
           hintText: 'password',
           labelText: 'Password',
-          keyBoardType: TextInputType.visiblePassword,
           focusNode: passwordFocusNode,
           onChanged: (_password) {
             this.password = _password;
