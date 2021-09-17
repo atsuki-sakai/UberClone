@@ -9,15 +9,15 @@ import 'package:uber_clone/pages/sign_up_page.dart';
 class LoginPage extends StatelessWidget {
   LoginPage({Key? key}) : super(key: key);
 
+  static const String route = '/login';
+
   void _login() {
     //TODO - Login Function
     print('Login => email: ${email} , pass: ${password}');
   }
 
   void _pushSignInPage(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return SignUpPage();
-    }));
+    Navigator.pushNamed(context, SignUpPage.route);
   }
 
   final passwordFocusNode = FocusNode();

@@ -3,9 +3,12 @@ import 'package:uber_clone/componets/default_button.dart';
 import 'package:uber_clone/componets/round_text_field.dart';
 import 'package:uber_clone/componets/shadow_text.dart';
 import 'package:uber_clone/helpers/custom_alert_dialog.dart';
+import 'package:uber_clone/services/auth.dart';
 
 class SignUpPage extends StatelessWidget {
   SignUpPage({Key? key}) : super(key: key);
+
+  static const String route = '/signup';
 
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode phoneNumberFocusNode = FocusNode();
@@ -32,56 +35,117 @@ class SignUpPage extends StatelessWidget {
     password = _pass;
   }
 
-  void _signUp() {
-    //TODO - make SignUp Function
-    print(
-        'SignUp => userName: ${userName}, email : ${email} , phoneNumber : ${phoneNumber}, pass: ${password}');
+  void _signUp(BuildContext context) async {
+    final auth = Auth();
+    if (_inputValid(context: context)) {
+      final user = await auth.createUser(email, password);
+      if (!user.emailVerified) {
+        user.sendEmailVerification();
+        showAlertDialog(
+            context: context,
+            title: Text('メールの認証'),
+            content: Text('登録したアドレス宛にメールアドレス認証用URLを送信しました。確認をお願いします。'),
+            okAction: () => _popLoginPage(context));
+      }
+    } else {
+      print('input valid is return false...');
+    }
+  }
+
+  bool _inputValid({required BuildContext context}) {
+    if (!email.contains('@')) {
+      message(context: context, msg: 'メールアドレスの形式が無効です。');
+      return false;
+    } else if (email.length < 7) {
+      showAlertDialog(
+          context: context, title: null, content: Text('メールアドレスが短すぎます。'));
+    } else if (email.length > 25) {
+      message(context: context, msg: 'メールアドレスが長すぎます。');
+      return false;
+    } else if (password.isEmpty) {
+      message(context: context, msg: 'パスワードが入力されていません。');
+      return false;
+    } else if (password.length > 15) {
+      message(context: context, msg: 'パスワードが長すぎます。');
+      return false;
+    } else if (userName.length > 20) {
+      message(context: context, msg: 'ユーザー名が長すぎます。');
+      return false;
+    } else if (phoneNumber.isEmpty) {
+      message(context: context, msg: '電話番号が入力されていません。');
+      return false;
+    } else if (phoneNumber.length > 15) {
+      message(context: context, msg: '電話番号が長すぎます。');
+      return false;
+    } else {
+      return true;
+    }
+    return false;
   }
 
   void _popLoginPage(BuildContext context) {
     Navigator.pop(context);
   }
 
+  void message({String msg = "", required BuildContext context}) {
+    showAlertDialog(context: context, title: null, content: Text(msg));
+  }
+
   void _showVerificationAlert(BuildContext context) {
     showAlertDialog(
-        context: context,
-        title: Text('アカウント情報の確認'),
-        content: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 12.0,
-            horizontal: 20.0,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: 'UserName: '),
-                    TextSpan(text: userName, style: TextStyle(fontWeight: FontWeight.bold,),),
-                  ],
-                ),
-              ),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: 'Email: '),
-                    TextSpan(text: email, style: TextStyle(fontWeight: FontWeight.bold,),),
-                  ],
-                ),
-              ),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: 'phone: '),
-                    TextSpan(text: phoneNumber, style: TextStyle(fontWeight: FontWeight.bold,),),
-                  ],
-                ),
-              ),
-            ],
-          ),
+      context: context,
+      title: Text('アカウント情報の確認'),
+      content: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 12.0,
+          horizontal: 20.0,
         ),
-        doneAction: () => {print('done')});
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: 'UserName: '),
+                  TextSpan(
+                    text: userName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: 'Email: '),
+                  TextSpan(
+                    text: email,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: 'phone: '),
+                  TextSpan(
+                    text: phoneNumber,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -160,7 +224,7 @@ class SignUpPage extends StatelessWidget {
         DefaultButton(
           title: 'Sign Up',
           color: Colors.indigoAccent,
-          onPressed: () => _showVerificationAlert(context),
+          onPressed: () => _signUp(context),
         ),
         SizedBox(height: 50.0),
         TextButton(

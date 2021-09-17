@@ -8,16 +8,18 @@ import 'package:uber_clone/pages/login_page.dart';
 class OpeningPage extends StatefulWidget {
   const OpeningPage({Key? key}) : super(key: key);
 
+  static const String route = '/opening';
+
   @override
   State<OpeningPage> createState() => _OpeningPageState();
 }
 
 class _OpeningPageState extends State<OpeningPage> {
-  static const int _lateSec = 3;
+  static const int _animateSec = 3;
 
   @override
   void initState() {
-    startToPushLoginPage(seconds: _lateSec);
+    startToPushLoginPage(seconds: _animateSec);
     super.initState();
   }
 
@@ -45,7 +47,7 @@ class _OpeningPageState extends State<OpeningPage> {
         body: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: const [
               Center(
                 child: ShadowText(
                   title: 'Uber Clone',
