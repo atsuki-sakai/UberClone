@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uber_clone/componets/default_button.dart';
 import 'package:uber_clone/componets/round_text_field.dart';
 import 'package:uber_clone/componets/shadow_text.dart';
 import 'package:uber_clone/helpers/custom_alert_dialog.dart';
+import 'package:uber_clone/helpers/toast.dart';
 import 'package:uber_clone/services/auth.dart';
 
 class SignUpPage extends StatelessWidget {
@@ -14,68 +16,59 @@ class SignUpPage extends StatelessWidget {
   final FocusNode phoneNumberFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
 
-  String userName = '';
-  String email = '';
-  String phoneNumber = '';
-  String password = '';
-
-  void changeUserName(_userName) {
-    userName = _userName;
-  }
-
-  void changeEmail(_email) {
-    email = _email;
-  }
-
-  void changePhoneNumber(_phoneNumber) {
-    phoneNumber = _phoneNumber;
-  }
-
-  void changePassword(_pass) {
-    password = _pass;
-  }
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController userNameController = TextEditingController();
+  final TextEditingController phoneNumberController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   void _signUp(BuildContext context) async {
-    final auth = Auth();
-    if (_inputValid(context: context)) {
-      final user = await auth.createUser(email, password);
-      if (!user.emailVerified) {
-        user.sendEmailVerification();
-        showAlertDialog(
-            context: context,
-            title: Text('メールの認証'),
-            content: Text('登録したアドレス宛にメールアドレス認証用URLを送信しました。確認をお願いします。'),
-            okAction: () => _popLoginPage(context));
+    final _auth = Auth();
+    if (_inputValid(context)) {
+      try {
+        final user = await _auth.createUser(email: emailController.text, password: passwordController.text);
+        if (user == null) {
+          toast(context: context, msg: '予期せぬエラーが発生しました。再度登録お願いします。');
+        } else {
+          if (!user.emailVerified) {
+            user.sendEmailVerification();
+            await showAlertDialog(
+              context: context,
+              title: Text('メールの認証'),
+              content: Text('登録したアドレス宛にメールアドレス認証用URLを送信しました。確認をお願いします。'),
+              defaultActionText: 'OK',
+              action: () => _popLoginPage(context),
+            );
+          }
+        }
+      } on FirebaseException catch (error) {
+        toast(context: context, msg: error.message!);
       }
-    } else {
-      print('input valid is return false...');
     }
   }
 
-  bool _inputValid({required BuildContext context}) {
-    if (!email.contains('@')) {
-      message(context: context, msg: 'メールアドレスの形式が無効です。');
+  bool _inputValid(BuildContext context) {
+    if (!emailController.text.contains('@')) {
+      toast(context: context, msg: 'メールアドレスの形式が無効です。');
       return false;
-    } else if (email.length < 7) {
-      showAlertDialog(
-          context: context, title: null, content: Text('メールアドレスが短すぎます。'));
-    } else if (email.length > 25) {
-      message(context: context, msg: 'メールアドレスが長すぎます。');
+    } else if (emailController.text.length < 7) {
+      toast(context: context, msg: 'メールアドレスが短すぎます。');
+    } else if (emailController.text.length > 25) {
+      toast(context: context, msg: 'メールアドレスが長すぎます。');
       return false;
-    } else if (password.isEmpty) {
-      message(context: context, msg: 'パスワードが入力されていません。');
+    } else if (passwordController.text.isEmpty) {
+      toast(context: context, msg: 'パスワードが入力されていません。');
       return false;
-    } else if (password.length > 15) {
-      message(context: context, msg: 'パスワードが長すぎます。');
+    } else if (passwordController.text.length > 15) {
+      toast(context: context, msg: 'パスワードが長すぎます。');
       return false;
-    } else if (userName.length > 20) {
-      message(context: context, msg: 'ユーザー名が長すぎます。');
+    } else if (userNameController.text.length > 20) {
+      toast(context: context, msg: 'ユーザー名が長すぎます。');
       return false;
-    } else if (phoneNumber.isEmpty) {
-      message(context: context, msg: '電話番号が入力されていません。');
+    } else if (phoneNumberController.text.isEmpty) {
+      toast(context: context, msg: '電話番号が入力されていません。');
       return false;
-    } else if (phoneNumber.length > 15) {
-      message(context: context, msg: '電話番号が長すぎます。');
+    } else if (phoneNumberController.text.length > 15) {
+      toast(context: context, msg: '電話番号が長すぎます。');
       return false;
     } else {
       return true;
@@ -84,69 +77,68 @@ class SignUpPage extends StatelessWidget {
   }
 
   void _popLoginPage(BuildContext context) {
-    Navigator.pop(context);
+    final _data = {
+      "email": emailController.text,
+      "password": passwordController.text,
+    };
+    Navigator.pop(context, _data);
   }
 
-  void message({String msg = "", required BuildContext context}) {
-    showAlertDialog(context: context, title: null, content: Text(msg));
-  }
-
-  void _showVerificationAlert(BuildContext context) {
-    showAlertDialog(
-      context: context,
-      title: Text('アカウント情報の確認'),
-      content: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 12.0,
-          horizontal: 20.0,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: 'UserName: '),
-                  TextSpan(
-                    text: userName,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+  Future<void> _showVerificationAlert(BuildContext context) async =>
+      showAlertDialog(
+          context: context,
+          title: Text('アカウント情報の確認'),
+          content: Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: 12.0,
+              horizontal: 20.0,
             ),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: 'Email: '),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text.rich(
                   TextSpan(
-                    text: email,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    children: [
+                      TextSpan(text: 'UserName: '),
+                      TextSpan(
+                        text: userNameController.text,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: 'phone: '),
+                ),
+                Text.rich(
                   TextSpan(
-                    text: phoneNumber,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    children: [
+                      TextSpan(text: 'Email: '),
+                      TextSpan(
+                        text: emailController.text,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(text: 'phone: '),
+                      TextSpan(
+                        text: phoneNumberController.text,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
+          ),
+          defaultActionText: 'OK');
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +177,7 @@ class SignUpPage extends StatelessWidget {
           hintText: 'Yamada Tarou',
           labelText: 'UserName',
           nextFocus: emailFocusNode,
-          onChanged: (_userName) => changeUserName(_userName),
+          controller: userNameController,
         ),
         SizedBox(
           height: 20.0,
@@ -195,7 +187,7 @@ class SignUpPage extends StatelessWidget {
           labelText: 'Email',
           focusNode: emailFocusNode,
           nextFocus: phoneNumberFocusNode,
-          onChanged: (_email) => changeEmail(_email),
+          controller: emailController,
         ),
         SizedBox(
           height: 20.0,
@@ -206,7 +198,7 @@ class SignUpPage extends StatelessWidget {
           labelText: 'PhoneNumber',
           focusNode: phoneNumberFocusNode,
           nextFocus: passwordFocusNode,
-          onChanged: (_phoneNumber) => changePhoneNumber(_phoneNumber),
+          controller: phoneNumberController,
         ),
         SizedBox(
           height: 20.0,
@@ -216,7 +208,7 @@ class SignUpPage extends StatelessWidget {
           hintText: 'password',
           labelText: 'Password',
           focusNode: passwordFocusNode,
-          onChanged: (_pass) => changePassword(_pass),
+          controller: passwordController,
         ),
         SizedBox(
           height: 80.0,

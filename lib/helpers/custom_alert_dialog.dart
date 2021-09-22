@@ -2,69 +2,66 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-void showAlertDialog({
+Future<void> showAlertDialog({
   required BuildContext context,
-  required Widget? title,
+  required Widget title,
   required Widget content,
-  Function? okAction,
-}) {
+  required String defaultActionText,
+  String? cancelActionText,
+  VoidCallback? action,
+}) async {
   if (!Platform.isIOS) {
-    showDialog(
+    await showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: title,
             content: content,
             actions: [
-              if (okAction != null) ...{
+              if (cancelActionText != null) ...{
                 TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text('Cancel'),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(cancelActionText),
                 ),
               },
               TextButton(
                 onPressed: () {
-                  if (okAction != null) {
-                    okAction();
-                  } else {
-                    Navigator.pop(context);
+                  Navigator.of(context).pop();
+                  if(action != null){
+                    action();
                   }
                 },
-                child: Text('OK'),
+                child: Text(defaultActionText),
               ),
             ],
           );
         });
   } else {
-    showCupertinoDialog(
-        context: context,
-        builder: (context) {
-          return CupertinoAlertDialog(
-            title: title,
-            content: content,
-            actions: [
-              if (okAction != null) ...{
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text('Cancel'),
-                ),
-              },
+    await showCupertinoDialog(
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: title,
+          content: content,
+          actions: [
+            if (cancelActionText != null) ...{
               TextButton(
-                onPressed: () {
-                  if (okAction != null) {
-                    okAction();
-                  } else {
-                    Navigator.pop(context);
-                  }
-                },
-                child: Text('OK'),
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(cancelActionText),
               ),
-            ],
-          );
-        });
+            },
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                if(action != null){
+                  action();
+                }
+              },
+              child: Text(defaultActionText),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

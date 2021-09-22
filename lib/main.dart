@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:uber_clone/pages/opening_page.dart';
 import 'package:uber_clone/pages/sign_up_page.dart';
 import 'pages/login_page.dart';
+import 'pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,11 +18,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: OpeningPage.route,
+      initialRoute: LoginPage.route,
       routes: {
         LoginPage.route: (context) => LoginPage(),
         SignUpPage.route: (context) => SignUpPage(),
         OpeningPage.route: (context) => OpeningPage(),
+        HomePage.route: (cotext) => HomePage(),
       },
     );
   }

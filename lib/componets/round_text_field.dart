@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// FIXME - onChageとcontrollerの併用は入力時にバグが発生
+
 class RoundTextField extends StatefulWidget {
   const RoundTextField({
     Key? key,
@@ -15,6 +17,7 @@ class RoundTextField extends StatefulWidget {
     this.nextFocus,
     this.onEditingComplete,
     this.onChanged,
+    this.controller,
   }) : super(key: key);
 
   final String hintText;
@@ -29,6 +32,7 @@ class RoundTextField extends StatefulWidget {
   final FocusNode? nextFocus;
   final Function? onEditingComplete;
   final Function? onChanged;
+  final TextEditingController? controller;
   @override
   _RoundTextFieldState createState() => _RoundTextFieldState();
 }
@@ -53,6 +57,7 @@ class _RoundTextFieldState extends State<RoundTextField> {
         ),
       ),
       child: TextFormField(
+        controller: widget.controller,
         textInputAction: widget.nextFocus != null ? TextInputAction.next : TextInputAction.done,
         autofocus: widget.autoFocus ?? false,
         focusNode: widget.focusNode,
