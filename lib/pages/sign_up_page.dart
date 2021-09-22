@@ -5,7 +5,9 @@ import 'package:uber_clone/componets/round_text_field.dart';
 import 'package:uber_clone/componets/shadow_text.dart';
 import 'package:uber_clone/helpers/custom_alert_dialog.dart';
 import 'package:uber_clone/helpers/toast.dart';
+import 'package:uber_clone/models/rider.dart';
 import 'package:uber_clone/services/auth.dart';
+import 'package:uber_clone/services/database.dart';
 
 class SignUpPage extends StatelessWidget {
   SignUpPage({Key? key}) : super(key: key);
@@ -22,28 +24,43 @@ class SignUpPage extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
 
   void _signUp(BuildContext context) async {
-    final _auth = Auth();
     if (_inputValid(context)) {
       try {
-        final user = await _auth.createUser(email: emailController.text, password: passwordController.text);
-        if (user == null) {
-          toast(context: context, msg: '予期せぬエラーが発生しました。再度登録お願いします。');
-        } else {
-          if (!user.emailVerified) {
-            user.sendEmailVerification();
-            await showAlertDialog(
-              context: context,
-              title: Text('メールの認証'),
-              content: Text('登録したアドレス宛にメールアドレス認証用URLを送信しました。確認をお願いします。'),
-              defaultActionText: 'OK',
-              action: () => _popLoginPage(context),
-            );
-          }
+        final _auth = Auth();
+        final user = await _auth.createUser(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim());
+        if (user == null)
+          return toast(context: context, msg: '予期せぬエラーが発生しました。再度登録お願いします。');
+        try{
+          await _saveRider(uid: user.uid);
+        }on FirebaseException catch(error){
+          toast(context: context, msg: 'アカウント情報の登録に失敗しました。管理者に問い合わせて下さい。');
+          return;
         }
+        user.sendEmailVerification();
+        await showAlertDialog(
+          context: context,
+          title: Text('メールの認証'),
+          content: Text('登録したアドレス宛にメールアドレス認証用URLを送信しました。確認をお願いします。'),
+          defaultActionText: 'OK',
+          action: () => _popLoginPage(context),
+        );
       } on FirebaseException catch (error) {
         toast(context: context, msg: error.message!);
       }
     }
+  }
+
+  Future<void> _saveRider({required String uid}) async {
+    final Rider rider = Rider(
+      uid: uid,
+      name: userNameController.text.trim(),
+      email: emailController.text.trim(),
+      phone: int.parse(phoneNumberController.text),
+    );
+    RidersDatabase database = RidersDatabase();
+    await database.save(rider);
   }
 
   bool _inputValid(BuildContext context) {
@@ -70,10 +87,8 @@ class SignUpPage extends StatelessWidget {
     } else if (phoneNumberController.text.length > 15) {
       toast(context: context, msg: '電話番号が長すぎます。');
       return false;
-    } else {
-      return true;
     }
-    return false;
+    return true;
   }
 
   void _popLoginPage(BuildContext context) {
@@ -86,59 +101,60 @@ class SignUpPage extends StatelessWidget {
 
   Future<void> _showVerificationAlert(BuildContext context) async =>
       showAlertDialog(
-          context: context,
-          title: Text('アカウント情報の確認'),
-          content: Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 12.0,
-              horizontal: 20.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: 'UserName: '),
-                      TextSpan(
-                        text: userNameController.text,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: 'Email: '),
-                      TextSpan(
-                        text: emailController.text,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: 'phone: '),
-                      TextSpan(
-                        text: phoneNumberController.text,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+        context: context,
+        title: Text('アカウント情報の確認'),
+        content: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: 12.0,
+            horizontal: 20.0,
           ),
-          defaultActionText: 'OK');
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'UserName: '),
+                    TextSpan(
+                      text: userNameController.text,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'Email: '),
+                    TextSpan(
+                      text: emailController.text,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'phone: '),
+                    TextSpan(
+                      text: phoneNumberController.text,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        defaultActionText: 'OK',
+      );
 
   @override
   Widget build(BuildContext context) {

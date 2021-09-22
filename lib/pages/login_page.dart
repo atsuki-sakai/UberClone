@@ -23,37 +23,21 @@ class LoginPage extends StatelessWidget {
   Map _loginData = {};
 
   Future<void> _login(BuildContext context) async {
-    //TODO - Login Function
     if (_inputValid(context: context)) {
       final _auth = Auth();
       try {
         final _user = await _auth.signInWithEmailAndPassword(
-            email: emailTextController.text,
-            password: passwordTextController.text);
-        if (_user != null) {
-          if (_user.emailVerified) {
-            print('user is logged => ${_user.email}');
-            Navigator.pushNamed(context, HomePage.route);
-          } else {
-            toast(context: context, msg: LoginEmailValidException.message);
-          }
-        } else {
-          toast(context: context, msg: '予期せぬエラーが発生しました。再度ログインしてください。');
-        }
+            email: emailTextController.text.trim(),
+            password: passwordTextController.text.trim());
+        if (_user == null)
+          return toast(context: context, msg: '予期せぬエラーが発生しました。再度ログインしてください。');
+        if (!_user.emailVerified)
+          return toast(context: context, msg: LoginEmailValidException.message);
+        Navigator.pushNamed(context, HomePage.route);
       } on FirebaseException catch (error) {
-        print(error.code);
-        print(error.message);
         toast(context: context, msg: error.message!);
       }
     }
-  }
-
-  void changeEmail(_email) {
-    emailTextController.text = _email;
-  }
-
-  void changePassword(_pass) {
-    passwordTextController.text = _pass;
   }
 
   bool _inputValid({required BuildContext context}) {
@@ -71,10 +55,8 @@ class LoginPage extends StatelessWidget {
     } else if (passwordTextController.text.length > 15) {
       toast(context: context, msg: 'パスワードが長すぎます。');
       return false;
-    } else {
-      return true;
     }
-    return false;
+    return true;
   }
 
   Future<Map?> _pushSignUpPage(BuildContext context) async {
