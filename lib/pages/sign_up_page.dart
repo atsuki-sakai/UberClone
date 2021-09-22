@@ -27,32 +27,27 @@ class SignUpPage extends StatelessWidget {
     if (_inputValid(context)) {
       try {
         final _auth = Auth();
+        final Rider? _rider;
         final user = await _auth.createUser(
             email: emailController.text.trim(),
             password: passwordController.text.trim());
         if (user == null)
           return toast(context: context, msg: '予期せぬエラーが発生しました。再度登録お願いします。');
         try{
-          await _saveRider(uid: user.uid);
+          _rider = await _saveRider(uid: user.uid);
         }on FirebaseException catch(error){
           toast(context: context, msg: 'アカウント情報の登録に失敗しました。管理者に問い合わせて下さい。');
           return;
         }
-        user.sendEmailVerification();
-        await showAlertDialog(
-          context: context,
-          title: Text('メールの認証'),
-          content: Text('登録したアドレス宛にメールアドレス認証用URLを送信しました。確認をお願いします。'),
-          defaultActionText: 'OK',
-          action: () => _popLoginPage(context),
-        );
+        await user.sendEmailVerification();
+        _popLoginPage(context: context, rider: _rider);
       } on FirebaseException catch (error) {
         toast(context: context, msg: error.message!);
       }
     }
   }
 
-  Future<void> _saveRider({required String uid}) async {
+  Future<Rider> _saveRider({required String uid}) async {
     final Rider rider = Rider(
       uid: uid,
       name: userNameController.text.trim(),
@@ -61,6 +56,7 @@ class SignUpPage extends StatelessWidget {
     );
     RidersDatabase database = RidersDatabase();
     await database.save(rider);
+    return rider;
   }
 
   bool _inputValid(BuildContext context) {
@@ -91,12 +87,12 @@ class SignUpPage extends StatelessWidget {
     return true;
   }
 
-  void _popLoginPage(BuildContext context) {
-    final _loginData = {
-      "email": emailController.text,
-      "password": passwordController.text,
-    };
-    Navigator.pop(context, _loginData);
+  void _popLoginPage({required BuildContext context, Rider? rider}) {
+    if(rider != null){
+      Navigator.pop(context, rider);
+    }else{
+      Navigator.pop(context);
+    }
   }
 
   Future<void> _showVerificationAlert(BuildContext context) async =>
@@ -239,7 +235,7 @@ class SignUpPage extends StatelessWidget {
         ),
         SizedBox(height: 50.0),
         TextButton(
-          onPressed: () => _popLoginPage(context),
+          onPressed: () => _popLoginPage(context: context),
           child: Text("既にアカウントをお持ちですか？"),
         ),
         SizedBox(height: 100.0)

@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:uber_clone/componets/default_button.dart';
 import 'package:uber_clone/componets/round_text_field.dart';
 import 'package:uber_clone/componets/shadow_text.dart';
-import 'package:uber_clone/componets/status_bar_Style.dart';
+import 'package:uber_clone/helpers/custom_alert_dialog.dart';
 import 'package:uber_clone/helpers/toast.dart';
+import 'package:uber_clone/models/rider.dart';
 import 'package:uber_clone/pages/sign_up_page.dart';
 import 'package:uber_clone/services/auth.dart';
 import 'package:uber_clone/utils/custom_exception.dart';
@@ -59,10 +60,12 @@ class LoginPage extends StatelessWidget {
     return true;
   }
 
-  Future<Map?> _pushSignUpPage(BuildContext context) async {
-    _loginData = await Navigator.pushNamed(context, SignUpPage.route) as Map;
-    emailTextController.text = _loginData['email'];
-    passwordTextController.text = _loginData['password'];
+  Future<void> _pushSignUpPage(BuildContext context) async {
+    final _rider = await Navigator.pushNamed(context, SignUpPage.route) as Rider?;
+    if(_rider == null) return;
+    emailTextController.text = _rider.email;
+    passwordTextController.text = '';
+    await showAlertDialog(context: context, title: SizedBox(), content: Text('認証メールを確認後ログインして下さい。'), defaultActionText: '了解');
   }
 
   @override
