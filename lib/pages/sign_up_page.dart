@@ -77,11 +77,11 @@ class SignUpPage extends StatelessWidget {
   }
 
   void _popLoginPage(BuildContext context) {
-    final _data = {
+    final _loginData = {
       "email": emailController.text,
       "password": passwordController.text,
     };
-    Navigator.pop(context, _data);
+    Navigator.pop(context, _loginData);
   }
 
   Future<void> _showVerificationAlert(BuildContext context) async =>
@@ -144,14 +144,17 @@ class SignUpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade300,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 0.0,
-              horizontal: 32.0,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 0.0,
+                horizontal: 32.0,
+              ),
+              child: Center(child: _buildContents(context)),
             ),
-            child: Center(child: _buildContents(context)),
           ),
         ),
       ),

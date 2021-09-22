@@ -24,21 +24,23 @@ class LoginPage extends StatelessWidget {
 
   Future<void> _login(BuildContext context) async {
     //TODO - Login Function
-    if(_inputValid(context: context)){
+    if (_inputValid(context: context)) {
       final _auth = Auth();
-      try{
-        final _user = await _auth.signInWithEmailAndPassword(email: emailTextController.text, password: passwordTextController.text);
-        if(_user != null){
-          if(_user.emailVerified){
+      try {
+        final _user = await _auth.signInWithEmailAndPassword(
+            email: emailTextController.text,
+            password: passwordTextController.text);
+        if (_user != null) {
+          if (_user.emailVerified) {
             print('user is logged => ${_user.email}');
             Navigator.pushNamed(context, HomePage.route);
-          }else{
+          } else {
             toast(context: context, msg: LoginEmailValidException.message);
           }
-        }else{
+        } else {
           toast(context: context, msg: '予期せぬエラーが発生しました。再度ログインしてください。');
         }
-      }on FirebaseException catch(error) {
+      } on FirebaseException catch (error) {
         print(error.code);
         print(error.message);
         toast(context: context, msg: error.message!);
@@ -59,7 +61,7 @@ class LoginPage extends StatelessWidget {
       toast(context: context, msg: 'メールアドレスの形式が無効です。');
       return false;
     } else if (emailTextController.text.length < 7) {
-      toast(context: context,msg: 'メールアドレスが短すぎます。');
+      toast(context: context, msg: 'メールアドレスが短すぎます。');
     } else if (emailTextController.text.length > 25) {
       toast(context: context, msg: 'メールアドレスが長すぎます。');
       return false;
@@ -79,17 +81,16 @@ class LoginPage extends StatelessWidget {
     _loginData = await Navigator.pushNamed(context, SignUpPage.route) as Map;
     emailTextController.text = _loginData['email'];
     passwordTextController.text = _loginData['password'];
-    print(_loginData);
   }
 
   @override
   Widget build(BuildContext context) {
-    return StatusBarStyle(
-      brightness: Brightness.light,
-      child: Scaffold(
-        backgroundColor: Colors.grey.shade300,
-        body: SingleChildScrollView(
-          child: SafeArea(
+    return Scaffold(
+      backgroundColor: Colors.grey.shade300,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 vertical: 32.0,
@@ -119,7 +120,6 @@ class LoginPage extends StatelessWidget {
           labelText: 'Email',
           nextFocus: passwordFocusNode,
           controller: emailTextController,
-
         ),
         SizedBox(height: 20.0),
         RoundTextField(

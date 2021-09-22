@@ -1,10 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginEmailValidException implements Exception {
-
   const LoginEmailValidException();
+
   static const String code = '認証待ちエラー';
   static const String message = '登録したアドレス宛にメールを送信しています。確認の上、再度ログインしてください。';
+}
+
+class CustomException implements Exception {
+  const CustomException({required this.code, required this.message});
+
+  final code;
+  final message;
 }
 
 class InputValidException {
