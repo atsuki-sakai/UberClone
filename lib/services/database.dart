@@ -6,6 +6,8 @@ abstract class Database {
   Future<void> save(Rider rider);
 
   Future<void> remove(Rider rider);
+
+  Future<Rider> get(String uid);
 }
 
 class RidersDatabase implements Database {
@@ -19,5 +21,13 @@ class RidersDatabase implements Database {
   @override
   Future<void> remove(Rider rider) async {
     await _reference.child(ApiPath.rider(rider.uid)).remove();
+  }
+
+  @override
+  Future<Rider> get(String uid) async {
+    final _snapShot = await _reference.child(ApiPath.rider(uid)).get();
+    final _data = _snapShot.value;
+    final Rider rider = Rider.fromMap(_data);
+    return rider;
   }
 }

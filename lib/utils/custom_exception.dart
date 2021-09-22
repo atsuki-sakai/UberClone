@@ -7,6 +7,12 @@ class LoginEmailValidException implements Exception {
   static const String message = '登録したアドレス宛にメールを送信しています。確認の上、再度ログインしてください。';
 }
 
+class UnknowException implements Exception {
+  const UnknowException();
+  static const String code = '予期せぬエラー';
+  static const String message = '予期せぬエラーが発生しました。再度お試しになるか、管理者にお問い合わせください。';
+}
+
 class CustomException implements Exception {
   const CustomException({required this.code, required this.message});
 

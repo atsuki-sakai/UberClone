@@ -21,7 +21,6 @@ class LoginPage extends StatelessWidget {
   final passwordFocusNode = FocusNode();
   final TextEditingController emailTextController = TextEditingController();
   final TextEditingController passwordTextController = TextEditingController();
-  Map _loginData = {};
 
   Future<void> _login(BuildContext context) async {
     if (_inputValid(context: context)) {
@@ -31,7 +30,7 @@ class LoginPage extends StatelessWidget {
             email: emailTextController.text.trim(),
             password: passwordTextController.text.trim());
         if (_user == null)
-          return toast(context: context, msg: '予期せぬエラーが発生しました。再度ログインしてください。');
+          return toast(context: context, msg: UnknowException.message);
         if (!_user.emailVerified)
           return toast(context: context, msg: LoginEmailValidException.message);
         Navigator.pushNamed(context, HomePage.route);
@@ -63,6 +62,7 @@ class LoginPage extends StatelessWidget {
   Future<void> _pushSignUpPage(BuildContext context) async {
     final _rider = await Navigator.pushNamed(context, SignUpPage.route) as Rider?;
     if(_rider == null) return;
+    // FIXME - rider.emailがnullであればクラッシュする。用途を限定すべき。
     emailTextController.text = _rider.email;
     passwordTextController.text = '';
     await showAlertDialog(context: context, title: SizedBox(), content: Text('認証メールを確認後ログインして下さい。'), defaultActionText: '了解');

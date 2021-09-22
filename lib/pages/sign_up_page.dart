@@ -8,6 +8,7 @@ import 'package:uber_clone/helpers/toast.dart';
 import 'package:uber_clone/models/rider.dart';
 import 'package:uber_clone/services/auth.dart';
 import 'package:uber_clone/services/database.dart';
+import 'package:uber_clone/utils/custom_exception.dart';
 
 class SignUpPage extends StatelessWidget {
   SignUpPage({Key? key}) : super(key: key);
@@ -32,7 +33,7 @@ class SignUpPage extends StatelessWidget {
             email: emailController.text.trim(),
             password: passwordController.text.trim());
         if (user == null)
-          return toast(context: context, msg: '予期せぬエラーが発生しました。再度登録お願いします。');
+          return toast(context: context, msg: UnknowException.message);
         try{
           _rider = await _saveRider(uid: user.uid);
         }on FirebaseException catch(error){

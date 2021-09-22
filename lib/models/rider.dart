@@ -10,7 +10,7 @@ class Rider {
       required this.email,
       required this.phone});
 
-  factory Rider.fromMap(Map<String, dynamic> data, String documentId) {
+  factory Rider.fromMap(Map<dynamic, dynamic> data) {
     final String uid = data['uid'];
     final String name = data['name'];
     final String email = data['email'];

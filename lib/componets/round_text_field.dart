@@ -40,6 +40,14 @@ class RoundTextField extends StatefulWidget {
 class _RoundTextFieldState extends State<RoundTextField> {
 
   @override
+  void dispose() {
+    if(widget.controller != null){
+      widget.controller!.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     const _defaultHeight = 60.0;
     const _defaultTextStyle = TextStyle(
