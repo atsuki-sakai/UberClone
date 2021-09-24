@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uber_clone/componets/default_button.dart';
+import 'package:uber_clone/componets/progress_dialog.dart';
 import 'package:uber_clone/componets/round_text_field.dart';
 import 'package:uber_clone/componets/shadow_text.dart';
 import 'package:uber_clone/helpers/custom_alert_dialog.dart';
@@ -26,34 +27,43 @@ class SignUpPage extends StatelessWidget {
 
   void _signUp(BuildContext context) async {
     if (_inputValid(context)) {
+      final _indicator = ProgressDialog(context: context, message: 'Create user...');
       try {
-        final _auth = Auth();
+        _indicator.start();
         final Rider? _rider;
-        final user = await _auth.createUser(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim());
-        if (user == null)
-          return toast(context: context, msg: UnknowException.message);
-        try{
-          _rider = await _saveRider(uid: user.uid);
-        }on FirebaseException catch(error){
-          toast(context: context, msg: 'アカウント情報の登録に失敗しました。管理者に問い合わせて下さい。');
+        final user = await _createUser();
+        if (user == null) {
+          _indicator.stop();
+          toast(context: context, msg: UnknowException.message);
           return;
         }
+        _rider = await _createRider(uid: user.uid);
         await user.sendEmailVerification();
+        _indicator.stop();
         _popLoginPage(context: context, rider: _rider);
+        return;
       } on FirebaseException catch (error) {
+        _indicator.stop();
         toast(context: context, msg: error.message!);
+        return;
       }
     }
   }
 
-  Future<Rider> _saveRider({required String uid}) async {
+  Future<User?> _createUser() async {
+    final _auth = Auth();
+    return await _auth.createUser(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim());
+  }
+
+  Future<Rider> _createRider({required String uid}) async {
     final Rider rider = Rider(
       uid: uid,
       name: userNameController.text.trim(),
       email: emailController.text.trim(),
-      phone: int.parse(phoneNumberController.text),
+      // FIXME - なぜか初めの0が登録されない
+      phone: 0 + int.parse(phoneNumberController.text),
     );
     RidersDatabase database = RidersDatabase();
     await database.save(rider);
@@ -89,9 +99,9 @@ class SignUpPage extends StatelessWidget {
   }
 
   void _popLoginPage({required BuildContext context, Rider? rider}) {
-    if(rider != null){
+    if (rider != null) {
       Navigator.pop(context, rider);
-    }else{
+    } else {
       Navigator.pop(context);
     }
   }

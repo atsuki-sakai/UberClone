@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uber_clone/componets/default_button.dart';
+import 'package:uber_clone/componets/progress_dialog.dart';
 import 'package:uber_clone/componets/round_text_field.dart';
 import 'package:uber_clone/componets/shadow_text.dart';
 import 'package:uber_clone/helpers/custom_alert_dialog.dart';
@@ -23,21 +24,30 @@ class LoginPage extends StatelessWidget {
   final TextEditingController passwordTextController = TextEditingController();
 
   Future<void> _login(BuildContext context) async {
-    if (_inputValid(context: context)) {
-      final _auth = Auth();
-      try {
-        final _user = await _auth.signInWithEmailAndPassword(
-            email: emailTextController.text.trim(),
-            password: passwordTextController.text.trim());
+
+    if(_inputValid(context: context)){
+      final _indicator = ProgressDialog(context: context, message: 'ログイン中');
+      try{
+        _indicator.start();
+        final _user = await _loginUser();
+        _indicator.stop();
         if (_user == null)
           return toast(context: context, msg: UnknowException.message);
         if (!_user.emailVerified)
           return toast(context: context, msg: LoginEmailValidException.message);
         Navigator.pushNamed(context, HomePage.route);
-      } on FirebaseException catch (error) {
+      }on FirebaseException catch(error) {
+        _indicator.stop();
         toast(context: context, msg: error.message!);
       }
     }
+  }
+
+  Future<User?> _loginUser() async {
+    final _auth = Auth();
+    return await _auth.signInWithEmailAndPassword(
+        email: emailTextController.text.trim(),
+        password: passwordTextController.text.trim());
   }
 
   bool _inputValid({required BuildContext context}) {

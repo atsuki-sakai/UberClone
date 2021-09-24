@@ -4,7 +4,6 @@ import 'package:uber_clone/helpers/toast.dart';
 import 'package:uber_clone/models/rider.dart';
 import 'package:uber_clone/services/auth.dart';
 import 'package:uber_clone/services/database.dart';
-
 import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -26,15 +25,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetchRider() async {
-    final RidersDatabase database = RidersDatabase();
     try {
-      final _rider = await database.get(auth.currentUser!.uid);
-      setState(() {
-        rider = _rider;
-      });
+      await _updateRider();
     } on FirebaseException catch(error) {
       toast(context: context, msg: error.message!);
     }
+  }
+
+  Future<void> _updateRider() async{
+    final RidersDatabase database = RidersDatabase();
+    final _rider = await database.get(auth.currentUser!.uid);
+    setState(() {
+      rider = _rider;
+    });
   }
 
   @override

@@ -24,8 +24,8 @@ class RidersDatabase implements Database {
   }
 
   @override
-  Future<Rider> get(String uid) async {
-    final _snapShot = await _reference.child(ApiPath.rider(uid)).get();
+  Future<Rider> get(String riderUid) async {
+    final _snapShot = await _reference.child(ApiPath.rider(riderUid)).get();
     final _data = _snapShot.value;
     final Rider rider = Rider.fromMap(_data);
     return rider;
