@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uber_clone/helpers/toast.dart';
 import 'package:uber_clone/models/rider.dart';
+import 'package:uber_clone/pages/map_page.dart';
 import 'package:uber_clone/services/auth.dart';
 import 'package:uber_clone/services/database.dart';
 import 'login_page.dart';
@@ -27,12 +28,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchRider() async {
     try {
       await _updateRider();
-    } on FirebaseException catch(error) {
+    } on FirebaseException catch (error) {
       toast(context: context, msg: error.message!);
     }
   }
 
-  Future<void> _updateRider() async{
+  Future<void> _updateRider() async {
     final RidersDatabase database = RidersDatabase();
     final _rider = await database.get(auth.currentUser!.uid);
     setState(() {
@@ -75,15 +76,32 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Text('useName :${rider!.name}'),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Text('email :${rider!.email}'),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Text('userPhone :${rider!.phone}'),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Text('uid :${rider!.uid}'),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
+            TextButton(
+              child: Text('to Map Page.'),
+              onPressed: () =>
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return MapPage();
+              })),
+            )
           ],
         ),
       ),

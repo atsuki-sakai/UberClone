@@ -1,34 +1,34 @@
-import 'package:uber_clone/utils/custom_exception.dart';
-// TODO - input_validatorsを個別で用意する
+import 'package:flutter/cupertino.dart';
+import 'package:uber_clone/helpers/toast.dart';
 
-abstract class StringValidator {
-  Exception? isValid(String value);
-}
+class LoginFormInputValidator {
 
-class EmailValidator implements StringValidator {
-  @override
-  Exception? isValid(String value) {
-    if (!value.contains('@')) {
-      return CustomException(code: '入力エラー', message: "メールアドレスの形式が無効です。");
-    } else if (value.length < 7) {
-      return CustomException(code: '入力エラー', message: "メールアドレスが短すぎます。");
-    } else if (value.length > 25) {
-      return CustomException(code: '入力エラー', message: "メールアドレスが長すぎます。");
-    } else if (value.isEmpty) {
-      return CustomException(code: '入力エラー', message: "メールアドレスが空です。");
+  LoginFormInputValidator({required this.context});
+  final BuildContext context;
+
+  bool emailValid(String email) {
+    if (!email.contains('@')) {
+      toast(context: context, msg: 'メールアドレスの形式が無効です。');
+      return false;
+    } else if (email.length < 7) {
+      toast(context: context, msg: 'メールアドレスが短すぎます。');
+      return false;
+    } else if (email.length > 25) {
+      toast(context: context, msg: 'メールアドレスが長すぎます。');
+      return false;
     }
-    return null;
+    return true;
   }
-}
-
-class PasswordValidator implements StringValidator {
-  @override
-  Exception? isValid(String value) {
-    if (value.isEmpty) {
-      return CustomException(code: '入力エラー', message: "パスワードが空です。");
-    } else if (value.length > 15) {
-      return CustomException(code: '入力エラー', message: "パスワードが長すぎます。");
+  
+  bool passwordValid(String password) {
+    if (password.isEmpty) {
+    toast(context: context, msg: 'パスワードが入力されていません。');
+    return false;
+    } else if (password.length > 15) {
+    toast(context: context, msg: 'パスワードが長すぎます。');
+    return false;
     }
-    return null;
+    return true;
   }
+
 }

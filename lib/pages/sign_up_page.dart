@@ -40,6 +40,7 @@ class SignUpPage extends StatelessWidget {
         _rider = await _createRider(uid: user.uid);
         await user.sendEmailVerification();
         _indicator.stop();
+        FocusScope.of(context).unfocus();
         _popLoginPage(context: context, rider: _rider);
         return;
       } on FirebaseException catch (error) {

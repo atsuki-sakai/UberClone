@@ -35,6 +35,7 @@ class LoginPage extends StatelessWidget {
           return toast(context: context, msg: UnknowException.message);
         if (!_user.emailVerified)
           return toast(context: context, msg: LoginEmailValidException.message);
+        FocusScope.of(context).unfocus();
         Navigator.pushNamed(context, HomePage.route);
       }on FirebaseException catch(error) {
         _indicator.stop();
