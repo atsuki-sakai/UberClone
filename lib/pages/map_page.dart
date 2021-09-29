@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uber_clone/componets/circle_button.dart';
 import 'package:uber_clone/componets/map_page_drawer.dart';
 import 'package:uber_clone/componets/rider_panel.dart';
+import 'package:uber_clone/services/map_client.dart';
 
 class MapPage extends StatefulWidget {
   @override
@@ -15,7 +16,6 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-
   bool _showPanel = true;
   double _panelHeight = 325.0;
 
@@ -33,7 +33,7 @@ class _MapPageState extends State<MapPage> {
   var geoLocator = Geolocator();
 
   void _setCurentLocation() async {
-    if(currentPosition == null) {
+    if (currentPosition == null) {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
       currentPosition = position;
@@ -49,20 +49,27 @@ class _MapPageState extends State<MapPage> {
         .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
+  void _fetchAddress(Position? position) async {
+    final address = await MapClient.searchCoordinateAddress(position);
+    if (address != null) {
+      print(address);
+    }
+  }
+
   void _toggleIsShowPanel() {
-    setState(() {
-      if (_showPanel) {
-        _showPanel = false;
-      } else {
-        _showPanel = true;
-      }
-    });
+    _fetchAddress(currentPosition);
+    // setState(() {
+    //   if (_showPanel) {
+    //     _showPanel = false;
+    //   } else {
+    //     _showPanel = true;
+    //   }
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
-    return
-      Scaffold(
+    return Scaffold(
       key: _scaffoldKey,
       drawer: MapPageDrawer(),
       body: Stack(
@@ -79,7 +86,10 @@ class _MapPageState extends State<MapPage> {
           Positioned(
             top: 80.0,
             left: 20,
-            child: CircleButton(onPressed: () => _scaffoldKey.currentState!.openDrawer(), icon: Icons.menu,),
+            child: CircleButton(
+              onPressed: () => _scaffoldKey.currentState!.openDrawer(),
+              icon: Icons.menu,
+            ),
           ),
           AnimatedPositioned(
             duration: Duration(milliseconds: 300),
@@ -96,11 +106,14 @@ class _MapPageState extends State<MapPage> {
             right: 10.0,
             child: Row(
               children: [
-                CircleButton(onPressed: _setCurentLocation, icon: Icons.my_location),
+                CircleButton(
+                    onPressed: _setCurentLocation, icon: Icons.my_location),
                 SizedBox(
                   width: 22.0,
                 ),
-                CircleButton(onPressed: _toggleIsShowPanel, icon: _showPanel ? Icons.close : Icons.arrow_upward),
+                CircleButton(
+                    onPressed: _toggleIsShowPanel,
+                    icon: _showPanel ? Icons.close : Icons.arrow_upward),
               ],
             ),
           ),
