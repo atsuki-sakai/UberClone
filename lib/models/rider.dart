@@ -26,4 +26,18 @@ class Rider {
       'phone': this.phone,
     };
   }
+
+  Rider copyWith({
+    String? name,
+    String? email,
+    int? phone,
+  }) {
+    return Rider(
+      uid: uid,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+    );
+  }
 }
+

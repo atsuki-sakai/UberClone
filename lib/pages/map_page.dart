@@ -34,37 +34,36 @@ class _MapPageState extends State<MapPage> {
 
   void _setCurentLocation() async {
     if (currentPosition == null) {
-      Position position = await Geolocator.getCurrentPosition(
+      currentPosition = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
-      currentPosition = position;
     }
-    LatLng newPosition =
-        LatLng(currentPosition!.latitude, currentPosition!.longitude);
-    _updateCameraPosition(latlng: newPosition);
+    _updateCameraPosition(position: currentPosition);
   }
 
-  void _updateCameraPosition({required LatLng latlng}) {
-    CameraPosition cameraPosition = CameraPosition(target: latlng, zoom: 14.0);
+  void _updateCameraPosition({required Position? position}) {
+    if (position == null) return;
+    final LatLng _latlng = LatLng(position.latitude, position.longitude);
+    CameraPosition cameraPosition = CameraPosition(target: _latlng, zoom: 14.0);
     newGoogleMapController
         .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
-  void _fetchAddress(Position? position) async {
+  Future<String?> _positonToAddress(Position? position) async {
     final address = await MapClient.searchCoordinateAddress(position);
     if (address != null) {
-      print(address);
+      return address;
     }
+    return null;
   }
 
   void _toggleIsShowPanel() {
-    _fetchAddress(currentPosition);
-    // setState(() {
-    //   if (_showPanel) {
-    //     _showPanel = false;
-    //   } else {
-    //     _showPanel = true;
-    //   }
-    // });
+    setState(() {
+      if (_showPanel) {
+        _showPanel = false;
+      } else {
+        _showPanel = true;
+      }
+    });
   }
 
   @override
@@ -108,6 +107,29 @@ class _MapPageState extends State<MapPage> {
               children: [
                 CircleButton(
                     onPressed: _setCurentLocation, icon: Icons.my_location),
+                SizedBox(
+                  width: 22.0,
+                ),
+                CircleButton(
+                    icon: Icons.nineteen_mp,
+                    onPressed: () async {
+                      final address = await _positonToAddress(currentPosition);
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text('Current Location.'),
+                              content:
+                                  Text(address ?? "Not fetched address..."),
+                              actions: [
+                                TextButton(
+                                  child: Text('Ok'),
+                                  onPressed: () => Navigator.pop(context),
+                                )
+                              ],
+                            );
+                          });
+                    }),
                 SizedBox(
                   width: 22.0,
                 ),
